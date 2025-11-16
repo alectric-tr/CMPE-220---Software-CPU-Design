@@ -1016,65 +1016,54 @@ print_results:
     HLT
 """
 
-# Simpler Fibonacci that just prints first 10 values
 FIBONACCI_SIMPLE = """
-; Simple Fibonacci - prints first 10 numbers
-; F(0)=0, F(1)=1, F(n)=F(n-1)+F(n-2)
+; Fibonacci - prints first 7 single-digit numbers (0,1,1,2,3,5,8)
 
 start:
-    MOV A, #0          ; F(n-2) = 0
-    MOV B, #1          ; F(n-1) = 1
-    MOV C, #8          ; Counter (we already have 0,1)
+    MOV A, #0          ; fib(n-2)
+    MOV B, #1          ; fib(n-1)
+    MOV C, #5          ; counter (5 more after printing 0 and 1)
+
+    ; Print 0
+    MOV D, #48
+    MOV [0xFF00], D
+    MOV D, #32
+    MOV [0xFF00], D
     
-    ; Print first two
-    PUSH A
+    ; Print 1
+    MOV D, #49
+    MOV [0xFF00], D
+    MOV D, #32
+    MOV [0xFF00], D
+
+loop:
+    ; Check if done first
+    CMP C, #0
+    JZ done
+    DEC C
+    
+    ; Compute next: new_val = A + B
+    PUSH A             ; Save old A
+    ADD A, B           ; A now = A + B (new fibonacci number)
+    
+    ; Print the new number
+    PUSH A             ; Save the new fib value
     ADD A, #48         ; Convert to ASCII
-    MOV [0xFF00], A    ; Print '0'
+    MOV [0xFF00], A    ; Print it
     MOV A, #32         ; Space
     MOV [0xFF00], A
-    POP A
+    POP A              ; Restore the fib value
     
-    PUSH B
-    MOV A, B
-    ADD A, #48
-    MOV [0xFF00], A    ; Print '1'
-    MOV A, #32
-    MOV [0xFF00], A
-    POP B
-    MOV A, #0          ; Restore A
+    ; Shift values: new A = old B, new B = new fib value
+    POP D              ; D = old A
+    MOV D, B           ; D = old B (this will become new A)
+    MOV B, A           ; B = new fib value
+    MOV A, D           ; A = old B
     
-loop:
-    CMP C, #0          ; Check if done
-    JZ done
-    
-    ; Compute next: temp = A + B
-    PUSH A             ; Save A
-    ADD A, B           ; A = A + B (next fib)
-    
-    ; Print result (only works for single digits)
-    PUSH A
-    PUSH B
-    MOV B, A
-    AND B, #15         ; Get low nibble
-    ADD B, #48         ; Convert to ASCII
-    MOV [0xFF00], B    ; Print
-    MOV B, #32         ; Space
-    MOV [0xFF00], B
-    POP B
-    POP A
-    
-    ; Shift: B = old A + B, A = old B
-    POP B              ; B = old A
-    PUSH A             ; Now A has old A + old B
-    MOV A, B           ; A = old B
-    POP B              ; B = old A + old B
-    
-    ; Continue
-    DEC C
     JMP loop
-    
+
 done:
-    MOV A, #10         ; Newline
+    MOV A, #10
     MOV [0xFF00], A
     HLT
 """
