@@ -23,6 +23,9 @@ The assembler converts the custom assembly language into machine code, which can
 - `recursion.py`  
   Shows a recursive factorial function in both Python and the custom assembly language, explains memory layout and call mechanics, and runs the assembled code on the CPU.
 
+- `fibonacci_example.mov`
+  Fibonacci example demo.
+
 ## Running
 
 Run the recursion demonstration:
